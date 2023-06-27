@@ -69,7 +69,7 @@ public class UpAndDownLoadController extends BaseController {
 
         response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
         response.addHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment;fileName=" + fileName + "-DONE-" + currTime + ".jpg");
-
+        System.out.println("开始下载:" + currentReqOutFile);
         try (FileInputStream fis = new FileInputStream(currentReqOutFile);
              OutputStream os = response.getOutputStream()) {
             byte[] buf = new byte[512];
@@ -77,7 +77,9 @@ public class UpAndDownLoadController extends BaseController {
             while ((len = fis.read(buf)) != -1) {
                 os.write(buf, 0, len);
             }
+            os.flush();
         } catch (Exception e) {
+            e.printStackTrace();
             System.err.println("出错了");
         }
     }

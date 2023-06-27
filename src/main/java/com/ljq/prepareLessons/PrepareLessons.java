@@ -112,7 +112,7 @@ public class PrepareLessons {
             sb.append("\n");
         }
 
-       // System.out.println(sb.toString());
+        // System.out.println(sb.toString());
         //生成图片
         generaImg(sb.toString());
         System.out.println("清除client");
@@ -231,7 +231,7 @@ public class PrepareLessons {
             y += lineHeight;
         }
         g.dispose();
-
+        System.out.println("内部：" + outputImg);
         ImageIO.write(image, "jpg", new File(outputImg));
     }
 
@@ -266,18 +266,18 @@ public class PrepareLessons {
         for (int i = 0; i < options.length; i++) {
             String option = options[i];
             //调用api翻译获取返回值
-            Thread.sleep(200);
+            Thread.sleep(700);
             String chinese;
             try {
                 //用 try catch 增加重试次数
                 chinese = invokeDicJS(option);
             } catch (Exception e) {
                 e.printStackTrace();
-                Thread.sleep(800);
+                Thread.sleep(1000);
                 try {
                     chinese = invokeDicJS(option);
                 } catch (Exception ex) {
-                    Thread.sleep(500);
+                    Thread.sleep(2300);
                     try {
                         chinese = invokeDicJS(option);
                     } catch (Exception exx) {
@@ -286,6 +286,7 @@ public class PrepareLessons {
                     }
                 }
             }
+            System.out.println(option + " -> " + chinese);
             zh[i] = chinese != null ? chinese : "";
         }
         if (num == 2) {
@@ -356,7 +357,7 @@ public class PrepareLessons {
         word = word.replaceAll("‘", "")
                 .replaceAll("’", "")
                 .trim().replaceAll(" ", "%20");
-       // System.out.println("word-:" + word);
+        // System.out.println("word-:" + word);
         long currentTimeMillis = System.currentTimeMillis();
         JSONObject json = new JSONObject(new TreeMap<>());
         json.put("client", 6);
@@ -370,7 +371,7 @@ public class PrepareLessons {
         //System.out.println("sign:" + sign);
 
         String url = "http://dict.iciba.com/dictionary/word/query/web?client=6&key=1000006&timestamp=" + currentTimeMillis + "&word=" + URLEncoder.encode(word, "UTF-8") + "&signature=" + sign;
-       // System.out.println("url:" + url);
+        // System.out.println("url:" + url);
         Request request = new Request.Builder()
                 .url(url)
                 .addHeader("Accept", " application/json, text/plain, */*")

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>自动备课（语法）</title>
 
     <style>
         .upload-container {
@@ -42,6 +42,7 @@
             background-color: #4caf50;
             transition: width 0.03s ease-in-out;
         }
+
         .bubble-tip {
             position: fixed;
             top: 30%;
@@ -70,16 +71,24 @@
         <h2>上传文件</h2>
         <form action="/upload" method="post" enctype="multipart/form-data">
             <input type="file" name="file" id="file-input"/>
-            <input type="hidden" name="a">
+            <input type="hidden" name="a" value="d">
+            <input type="hidden" name="b" value="a">
         </form>
         <button onclick="uploadFile()" style="display: inline-block;">提 交</button>
         <div class="progress-bar" id="progress-bar" style="display: none">
             <div class="progress" id="progress"></div>
         </div>
+
     </div>
 </div>
 </body>
 <script>
+    function f() {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "/get");
+        xhr.send();
+    }
+
     function uploadFile() {
         var fileInput = document.getElementById("file-input");
         var progressBar = document.getElementById("progress-bar");
@@ -104,7 +113,7 @@
             // 隐藏蒙版
             mask.style.display = "none";
             showBubbleTip('处理成功！', 2000, '#b2d8b2');
-            document.getElementById("file-input").value="";
+            document.getElementById("file-input").value = "";
             // 隐藏进度条
             progressBar.style.display = "none";
         }, false);
@@ -117,8 +126,25 @@
             }
         }, false);
         // 发送上传请求
-         xhr.open("POST", "/upload");
-         xhr.send(formData);
+        xhr.open("POST", "/upload");
+        xhr.responseType = "blob"; // 返回类型blob
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                var blob = this.response;
+                var reader = new FileReader();
+                reader.readAsDataURL(blob);
+                reader.onload = function (e) {
+                    console.log(e); //查看有没有接收到数据流,转换完成，创建一个a标签用于下载文件
+                    var a = document.createElement('a');
+                    a.download = xhr.getResponseHeader("Content-Disposition").substring(xhr.getResponseHeader("Content-Disposition").lastIndexOf("=")+1);
+                    a.href = e.target.result;
+                    document.body.append(a); // 修复firefox中无法触发click
+                    a.click();//自动触发点击事件
+                    a.remove();
+                }
+            }
+        };
+        xhr.send(formData);
     }
 
     function showBubbleTip(message, duration, bgColor) {
@@ -135,7 +161,7 @@
         bubbleTip.style.display = 'block';
 
         // 持续一段时间后隐藏气泡提示
-        setTimeout(function() {
+        setTimeout(function () {
             bubbleTip.style.display = 'none';
             // 将气泡提示从页面中移除
             document.body.removeChild(bubbleTip);
